@@ -148,7 +148,7 @@ window.Nogipic = (function () {
         bindDrag: function(){
             let that = this;
             function mousedown(e){
-                that.imgEle.style.transition = '0.5s';
+                that.imgEle.style.transition = 'none';
                 e.preventDefault();
                 if(e.touches){
                     if(e.touches.length === 2) {
@@ -178,7 +178,6 @@ window.Nogipic = (function () {
                 
             }
             function mousemove(e){
-                that.imgEle.style.transition = 'none';
                 e.preventDefault();
                 if(e.touches){
                     if(e.touches.length === 2) {
@@ -187,7 +186,7 @@ window.Nogipic = (function () {
                         that.imgEle.style[TRANSFORM] = 'scale(' + that.scale +')';
                         let currX = (e.touches[0].pageX + e.touches[1].pageX)/2;
                         let currY = (e.touches[0].pageY + e.touches[1].pageY)/2;
-                        that.imgEle.style.marginLeft = that.getMarginLeft() + currX - that.pageX +'px';
+                        that.imgEle.style.marginLeft = that.getMarginLeft() + currX-that.pageX +'px';
                         that.imgEle.style.marginTop = that.getMarginTop() + currY-that.pageY +'px';
                         that.pageX = currX;
                         that.pageY = currY;
