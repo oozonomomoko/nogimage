@@ -104,7 +104,7 @@ window.Nogipic = (function () {
             this.imgEle.src = this.eles[idx].src;
             this.imgEle.style.transition = 'none';
             this.rootEle.style.display = 'block';
-            this.pageEle.textContent = idx + '/' + this.eles.length;
+            this.pageEle.textContent = (idx+1) + '/' + this.eles.length;
         },
         bindDrag: function(){
             var TRANSFORM = 'transform';
