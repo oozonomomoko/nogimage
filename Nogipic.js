@@ -75,7 +75,7 @@ window.Nogipic = (function () {
             if (!document.getElementById('nogipicstyle')) {
                 let style = document.createElement('style');
                 style.setAttribute('id', 'nogipicstyle');
-                style.innerHTML='.nogipic{position:fixed;display:none;left:0;top:0;width:100%;height:100%;z-index:99999;background-color:rgba(0, 0, 0, 0.8);}.nogipic img{position: fixed;max-width: 100%;max-height: 100%;display: block;}.nogipic span {display: block;}.nogipic div {color: white;text-shadow: 0 0 5px black;text-align: center;position: fixed;height: 100%;width: 25%;top: 0;z-index: 999;border: none;}.nogipic .pre{left:0;}.nogipic .nxt{right:0;}.nogipic .page {top: 90%;width: 100%;}.nogipic .pre:before {content: "<";top: 50%;position: fixed;transform: scale(1.5);}.nogipic .nxt:before {content: ">";top: 50%;position: fixed;transform: scale(1.5);}';
+                style.innerHTML='.nogipic{border: none;position:fixed;display:none;left:0;top:0;width:100%;height:100%;z-index:99999;background-color:rgba(0, 0, 0, 0.8);}.nogipic img{position: fixed;max-width: 100%;max-height: 100%;display: block;}.nogipic span {display: block;}.nogipic div {color: white;text-shadow: 0 0 5px black;text-align: center;position: fixed;height: 100%;width: 25%;top: 0;z-index: 999;border: none;}.nogipic .pre{left:0;}.nogipic .nxt{right:0;}.nogipic .page {top: 90%;width: 100%;}.nogipic .pre:before {content: "<";top: 50%;position: fixed;transform: scale(1.5);}.nogipic .nxt:before {content: ">";top: 50%;position: fixed;transform: scale(1.5);}';
                 document.body.appendChild(style);
             }
             // 更换图片后调整位置
