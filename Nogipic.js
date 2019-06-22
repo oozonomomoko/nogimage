@@ -101,6 +101,7 @@ window.Nogipic = (function () {
 		},
         showImg: function(idx){
             this.idx = idx;
+            this.imgEle.src = '';
             this.imgEle.src = this.eles[idx].src;
             this.imgEle.style.transition = 'none';
             this.rootEle.style.display = 'block';
