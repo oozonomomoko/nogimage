@@ -1,8 +1,11 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script src="dir.js"></script>
+    <script src="Nogipic.js"></script>
     <style>
+    body{margin:0;}
 div {
     border: 1px white solid;
     cursor: default;
@@ -16,40 +19,52 @@ a {
 }
 .dir:before {
     content: " ";
-    background: #eca6e7;
+    background: #efcfec;
     width: 46px;
-    border: solid #ce62ca;
+    border: solid #ce77ca;
     border-width: 1px 2px 2px 1px;
     border-radius: 14px 0 0 0;
     height: 44px;
     display: block;
     top: 4px;
     margin: 0 auto;
+    margin-bottom: 3px;
 }
 .custom div {
     float: left;
-    width: 100px;
-    height: 100px;
-    font-size: small;
+    width: 70px;
+    height: 96px;
+    font-size: 12px;
     overflow: hidden;
     margin: 6px;
     text-align: center;
     padding: 4px;
     word-break: break-word;
+    outline: none;
+    user-select: none;
+    text-overflow:ellipsis;
+    display:-webkit-box; 
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:3; 
 }
-#custom div:hover, #custom div:focus {
+#custom div:hover {
+    border: 1px #a1e0ff solid;
+    background: #ecf9ff;
+}
+#custom div:focus {
     border: 1px #7bcdf5 solid;
     background: #ceefff;
 }
-img {
-    height: 46px;
-    display: block;
-    margin: 0 auto;
+.custom img {
+    max-width: 100%;
+    margin: 3px auto 3px auto;
     user-select: none;
+    display: block;
+    max-height: 46px;
 }
 .file:before {
-    content: "————————";
-    background: #eca6e7;
+    content: "— ————————";
+    background: #cc86c7;
     width: 34px;
     border: solid #ce62ca;
     border-width: 1px 2px 2px 1px;
@@ -60,6 +75,8 @@ img {
     margin: 0 auto;
     color: white;
     line-height: 0.5;
+    padding-top: 3px;
+    margin-bottom: 3px;
 }
     </style>
 </head>
@@ -67,73 +84,72 @@ img {
     <div id="custom" class="custom"></div>
     <script>
     var types = ['jpg', 'jpeg', 'gif', 'png'];
-    var clickTime = new Date();
-    var clickF = '';
     var root = document.getElementById("custom");
-    var base = '/nogimage/image';
+    function getBaseUrl() {
+        let href = window.location.href;
+        let idx1 = href.indexOf('#');
+        if (-1 != idx1) {
+            href = href.substring(0, idx1);
+        }
+        return href.substring(0, href.lastIndexOf('/')+1);
+    }
+    var base = getBaseUrl();
+    
     function show() {
         let path = '';
         let index = window.location.href.indexOf('#');
-        if (index != -1) {
-            path = decodeURI(window.location.href.substring(index+1));
-        } else {
+        if (index == -1) {
             window.location.href = '#';
-        }
-        let target;
-        if (path) {
-            let dirNames = path.split('/');
-            for (let i=1; i<dirNames.length; i++) {
-                target = target?target.child[dirNames[i]] : dir.child[dirNames[i]];
-            }
         } else {
-            target = dir;
+            path = decodeURI(window.location.href.substring(index+1));
+        }
+        let target = dir;
+        let dirNames = path.split('/');
+        for (let i=0; i<dirNames.length-1; i++) {
+            target = target[dirNames[i]].child;
         }
         root.innerHTML = '';
-        for (let file in target.child) {
-            let div = document.createElement("div");
-            div.innerHTML = file;
-            div.setAttribute('tabindex', '0');
-            if (target.child[file].dir) {
+        for (let file in target) {
+            if (target[file].dir) {
+                let div = document.createElement("div");
+                div.innerHTML = file;
+                div.setAttribute('tabindex', '0');
                 div.className="dir";
-                div.addEventListener('click', function(e){
-                    let now = new Date();
-                    let cost = now - clickTime;
-                    if (clickF == file && cost<500) {
-                        window.location.href += '/' + file;
-                        show();
-                    }
-                    clickF = file;
-                    clickTime = now;
-                });
-            } else {
-                let url = base + path + '/' + file;
+                div.onclick = function(){
+                    window.location.href += file + '/';
+                    show();
+                }
+                root.appendChild(div);
+            }
+        }
+        let idx = 0;
+        for (let file in target) {
+            if (!target[file].dir) {
+                let div = document.createElement("div");
+                div.innerHTML = file;
+                div.setAttribute('tabindex', '0');
+                let url = base + path + file;
                 let type = file.substring(file.indexOf('.')+1).toLowerCase();
                 if (types.indexOf(type) != -1) {
-                    div.innerHTML = '<img src="' + url + '"/>' + file;
+                    div.className="img";
+                    div.innerHTML = '<span><img src="' + url + '"/></span>' + file;
                 } else {
                     div.className="file";
-                }
-                //div.style.backgroundImage = "url('"+url+"')";
-                div.addEventListener('click', function(e){
-                    let now = new Date();
-                    let cost = now - clickTime;
-                    if (clickF == file && cost<500) {
+                    div.onclick = function(){
                         window.open(url);
                     }
-                    clickF = file;
-                    clickTime = now;
-                });
+                }
+                root.appendChild(div);
             }
-            root.appendChild(div);
         }
+        new Nogipic().init(custom.querySelectorAll('.img'));
     }
-    
     show();
     window.onpopstate = function(){
         show();
     };
-
-
+    
     </script>
 </body>
 </html>
+
