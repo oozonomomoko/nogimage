@@ -94,7 +94,7 @@ a {
         return href.substring(0, href.lastIndexOf('/')+1);
     }
     var base = getBaseUrl();
-    
+    var nogipic;
     function show() {
         let path = '';
         let index = window.location.href.indexOf('#');
@@ -142,14 +142,24 @@ a {
                 root.appendChild(div);
             }
         }
-        new Nogipic().init(custom.querySelectorAll('.img'));
+        if (!nogipic){
+            nogipic = new Nogipic();
+        }
+        let imgs = custom.querySelectorAll('.img');
+        if (imgs){
+            nogipic.init(imgs);
+        }
     }
     show();
-    window.onpopstate = function(){
-        show();
+    window.onpopstate = function(e){
+        if(!nogipic || !nogipic.show) {
+            show();
+        }else{
+        　　window.history.forward(1);
+            nogipic.close();
+        }
     };
     
     </script>
 </body>
 </html>
-

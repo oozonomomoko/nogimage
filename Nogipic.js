@@ -55,6 +55,7 @@ window.Nogipic = (function () {
             this.rootEle = document.createElement('div');
             let span = document.createElement('span');
             this.imgEle = document.createElement('img');
+            this.imgEle.style.transition = '0.5s';
             span.appendChild(this.imgEle);
             this.rootEle.className = 'nogipic';
             this.preEle = document.createElement('div');
@@ -78,18 +79,11 @@ window.Nogipic = (function () {
                 style.innerHTML='.nogipic{border: none;position:fixed;display:none;left:0;top:0;width:100%;height:100%;z-index:99999;background-color:rgba(0, 0, 0, 0.8);}.nogipic img{position: fixed;max-width: 100%;max-height: 100%;display: block;}.nogipic span {display: block;}.nogipic div {color: white;text-shadow: 0 0 5px black;text-align: center;position: fixed;height: 100%;width: 25%;top: 0;z-index: 999;border: none;}.nogipic .pre{left:0;}.nogipic .nxt{right:0;}.nogipic .page {top: 90%;width: 100%;}.nogipic .pre:before {content: "<";top: 50%;position: fixed;transform: scale(1.5);}.nogipic .nxt:before {content: ">";top: 50%;position: fixed;transform: scale(1.5);}';
                 document.body.appendChild(style);
             }
+			var that = this;
             // 更换图片后调整位置
             this.imgEle.onload = function(){
-                if (this.height<window.innerHeight)
-                    this.style.marginTop = (window.innerHeight-this.height)/2+'px';
-                else
-                    this.style.marginTop = '';
-                if (this.width<window.innerWidth)
-                    this.style.marginLeft = (window.innerWidth-this.width)/2+'px';
-                else
-                    this.style.marginLeft = '';
+                that.adjustPos();
             }
-			var that = this;
 			for (let i = 0; i < eles.length; i++) {
                 let idx = i;
 				eventEles[i].addEventListener('click', function() {
@@ -99,13 +93,55 @@ window.Nogipic = (function () {
             // 拖拽 缩放 前 后
             this.bindDrag();
 		},
+        adjustPos: function(){
+            /*
+            if (this.imgEle.height<window.innerHeight)
+                this.imgEle.style.marginTop = (window.innerHeight-this.imgEle.height)/2+'px';
+            else
+                this.imgEle.style.marginTop = '';
+            if (this.imgEle.width<window.innerWidth)
+                this.imgEle.style.marginLeft = (window.innerWidth-this.imgEle.width)/2+'px';
+            else
+                this.imgEle.style.marginLeft = '';      
+*/
+            let actH = this.imgEle.height*this.scaleLast;
+            let actW = this.imgEle.width*this.scaleLast;
+            let mt = this.getMarginTop();
+            let ml = this.getMarginLeft();
+            let maxT = (this.scaleLast-1)*this.imgEle.height/2;
+            let minT = window.innerHeight-maxT-this.imgEle.height;
+            let maxL = (this.scaleLast-1)*this.imgEle.width/2;
+            let minL = window.innerWidth-maxL-this.imgEle.width;
+            
+            if (actH<window.innerHeight)
+                this.imgEle.style.marginTop = (window.innerHeight-this.imgEle.height)/2+'px';
+            else if(mt>maxT)
+                this.imgEle.style.marginTop = maxT+'px';
+            else if(mt<minT)
+                this.imgEle.style.marginTop = minT+'px';
+            
+            if (actW<window.innerWidth)
+                this.imgEle.style.marginLeft = (window.innerWidth-this.imgEle.width)/2+'px';
+            else if(ml>maxL)
+                this.imgEle.style.marginLeft = maxL+'px';
+            else if(ml<minL)
+                this.imgEle.style.marginLeft = minL+'px';
+        },
         showImg: function(idx){
             this.idx = idx;
             this.imgEle.src = '';
             this.imgEle.src = this.eles[idx].src;
-            this.imgEle.style.transition = 'none';
+            this.imgEle.style[this.TRANSFORM] = 'scale(1)';
+            this.scaleLast = 1;
             this.rootEle.style.display = 'block';
             this.pageEle.textContent = (idx+1) + '/' + this.eles.length;
+            this.show = true;
+        },
+        getMarginLeft: function (){
+            return Number(this.imgEle.style.marginLeft.replace('px',''));
+        },
+        getMarginTop: function (){
+            return Number(this.imgEle.style.marginTop.replace('px',''));
         },
         bindDrag: function(){
             var TRANSFORM = 'transform';
@@ -115,7 +151,7 @@ window.Nogipic = (function () {
             
             let that = this;
             function mousedown(e){
-                that.imgEle.style.transition = '0.35s';
+                that.imgEle.style.transition = '0.5s';
                 e.preventDefault();
                 if(e.touches){
                     if(e.touches.length === 2) {
@@ -150,24 +186,24 @@ window.Nogipic = (function () {
                 if(e.touches){
                     if(e.touches.length === 2) {
                         let currDistance = getDistance(e.touches[0].pageX, e.touches[0].pageY, e.touches[1].pageX, e.touches[1].pageY);
-                        that.scale = currDistance/that.startDistance * that.scaleLast;
+                        that.scaleLast = currDistance/that.startDistance * that.scaleLast;
                         that.imgEle.style[TRANSFORM] = 'scale(' + that.scale +')';
                         let currX = (e.touches[0].pageX + e.touches[1].pageX)/2;
                         let currY = (e.touches[0].pageY + e.touches[1].pageY)/2;
-                        that.imgEle.style.marginLeft = getMarginLeft() + currX - that.pageX +'px';
-                        that.imgEle.style.marginTop = getMarginTop() + currY-that.pageY +'px';
+                        that.imgEle.style.marginLeft = that.getMarginLeft() + currX - that.pageX +'px';
+                        that.imgEle.style.marginTop = that.getMarginTop() + currY-that.pageY +'px';
                         that.pageX = currX;
                         that.pageY = currY;
                     }
                     else if(e.touches.length === 1) {
-                        that.imgEle.style.marginLeft = getMarginLeft() + e.touches[0].pageX-that.pageX +'px';
-                        that.imgEle.style.marginTop = getMarginTop() + e.touches[0].pageY-that.pageY +'px';
+                        that.imgEle.style.marginLeft = that.getMarginLeft() + e.touches[0].pageX-that.pageX +'px';
+                        that.imgEle.style.marginTop = that.getMarginTop() + e.touches[0].pageY-that.pageY +'px';
                         that.pageX = e.touches[0].pageX;
                         that.pageY = e.touches[0].pageY;
                     }
                 } else {
-                    that.imgEle.style.marginLeft = getMarginLeft() + e.pageX-that.pageX +'px';
-                    that.imgEle.style.marginTop = getMarginTop() + e.pageY-that.pageY +'px';
+                    that.imgEle.style.marginLeft = that.getMarginLeft() + e.pageX-that.pageX +'px';
+                    that.imgEle.style.marginTop = that.getMarginTop() + e.pageY-that.pageY +'px';
                     that.pageX = e.pageX;
                     that.pageY = e.pageY;
                 }
@@ -175,16 +211,9 @@ window.Nogipic = (function () {
             function getDistance(x1,y1,x2,y2){
                 return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1- y2), 2));
             }
-            function getMarginLeft(){
-                return Number(that.imgEle.style.marginLeft.replace('px',''));
-            }
-            function getMarginTop(){
-                return Number(that.imgEle.style.marginTop.replace('px',''));
-            }
             function mouseup(e){
                 that.imgEle.style.transition = '0.35s';
                 // 记录本次放大倍数
-                that.scaleLast = that.scale?that.scale:1;
                 if(that.scaleLast > 3){
                     that.scaleLast = 3;
                 } else if(that.scaleLast < 1) {
@@ -193,7 +222,8 @@ window.Nogipic = (function () {
                 that.imgEle.style[TRANSFORM] = 'scale('+that.scaleLast+')';
                 
                 // 左右边界
-                let offsetX;
+                that.adjustPos();
+                /**let offsetX;
                 if (that.scaleLast == 1 && that.imgEle.width<window.innerWidth){
                     offsetX = that.imgEle.style.marginLeft = (window.innerWidth-that.imgEle.width)/2+'px';
                 }else{
@@ -204,22 +234,25 @@ window.Nogipic = (function () {
                     that.imgEle.style.marginLeft = offsetX + 'px';
                 } else if(marginLeft+offsetX < 0) {
                     that.imgEle.style.marginLeft = -offsetX + 'px';
-                }
+                }*/
                 
                 // 弹出层单击事件 前|后|关闭
                 let rangeDistance = getDistance(that.pageX, that.pageY, that.startX, that.startY);
                 let rangeTime = e.timeStamp - that.timeStamp;
                 if (rangeTime < 200 && rangeDistance < 50){
                     if (e.target.className == 'pre') {
-                        if(that.idx!=0) {
+                        if(that.idx==0)
+                            that.showImg(that.eles.length-1);
+                        else
                             that.showImg(that.idx-1);
-                        }
+                        
                     } else if (e.target.className == 'nxt') {
-                        if(that.idx!=that.eles.length-1) {
+                        if(that.idx==that.eles.length-1)
+                            that.showImg(0);
+                        else
                             that.showImg(that.idx+1);
-                        }
                     } else {
-                        that.rootEle.style.display = 'none';
+                        that.close();
                         that.imgEle.style.marginLeft = '';
                         that.imgEle.style.marginTop = '';
                         that.imgEle.style[TRANSFORM] = 'scale(1)';
@@ -232,6 +265,24 @@ window.Nogipic = (function () {
             }
             this.rootEle.addEventListener('mousedown', mousedown);
             this.rootEle.addEventListener('touchstart', mousedown, {passive:false});
+            this.rootEle.onmousewheel = function(e){
+                let wheelDelta = e.detail?e.detail:e.wheelDelta;
+                if(wheelDelta>0)
+                    that.scaleLast += 0.1;
+                else if(wheelDelta<0)
+                    that.scaleLast -=0.1;
+                if(that.scaleLast>3)
+                    that.scaleLast = 3;
+                else if (that.scaleLast<1)
+                    that.scaleLast = 1;
+                that.imgEle.style[TRANSFORM] = 'scale(' + that.scaleLast +')';
+                that.adjustPos();
+            };
+        },
+        close:function(){
+            if (this.rootEle)
+                this.rootEle.style.display='none';
+            this.show = false;
         }
 	};
 	return Nogipic;
