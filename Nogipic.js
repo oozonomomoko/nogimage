@@ -68,8 +68,10 @@ window.Nogipic = (function () {
             this.pageEle = document.createElement('div');
             this.pageEle.className = 'page';
             this.rootEle.appendChild(this.pageEle);
-            
-            
+            this.TRANSFORM = 'transform';
+            if (typeof document.body.style.webkitTransform !== undefined) {
+                TRANSFORM = 'webkitTransform';
+            }
             document.body.appendChild(this.rootEle);
 
             // 样式
@@ -144,11 +146,6 @@ window.Nogipic = (function () {
             return Number(this.imgEle.style.marginTop.replace('px',''));
         },
         bindDrag: function(){
-            var TRANSFORM = 'transform';
-            if (typeof document.body.style.webkitTransform !== undefined) {
-                TRANSFORM = 'webkitTransform';
-            }
-            
             let that = this;
             function mousedown(e){
                 that.imgEle.style.transition = '0.5s';
