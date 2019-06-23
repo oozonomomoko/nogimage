@@ -78,7 +78,7 @@ window.Nogipic = (function () {
             if (!document.getElementById('nogipicstyle')) {
                 let style = document.createElement('style');
                 style.setAttribute('id', 'nogipicstyle');
-                style.innerHTML='.nogipic{border:none;position:fixed;display:none;left:0;top:0;width:100%;height:100%;z-index:99999;background-color:rgba(0,0,0,.8)}.nogipic img{position:fixed;max-width:100%;max-height:100%;display:block}.nogipic span{display:block}.nogipic div{color:#fff;text-shadow:0 0 3px #000;text-align:center;position:fixed;height:20%;width:50%;top:80%;z-index:1000;border:none}.nogipic .pre{left:0;background-color:rgba(255,255,255,.3)}.nogipic .nxt{right:0;background-color:rgba(255,255,255,.3)}.nogipic .page{top:90%;width:100%}.nogipic .pre:before{content:"<";top:50%;position:absolute;transform:scale(1.5)}.nogipic .nxt:before{content:">";top:50%;position:absolute;transform:scale(1.5)}';
+                style.innerHTML='.nogipic{border:none;position:fixed;display:none;left:0;top:0;width:100%;height:100%;z-index:99999;background-color:rgba(0,0,0,.8)}.nogipic img{width:auto;   height:auto;position:fixed;max-width:100%;max-height:100%;display:block}.nogipic span{display:block}.nogipic div{color:#fff;text-shadow:0 0 3px #000;text-align:center;position:fixed;height:20%;width:50%;top:80%;z-index:1000;border:none}.nogipic .pre{left:0;background-color:rgba(255,255,255,.3)}.nogipic .nxt{right:0;background-color:rgba(255,255,255,.3)}.nogipic .page{top:90%;width:100%}.nogipic .pre:before{content:"<";top:50%;position:absolute;transform:scale(1.5)}.nogipic .nxt:before{content:">";top:50%;position:absolute;transform:scale(1.5)}';
                 document.body.appendChild(style);
             }
 			var that = this;
@@ -198,7 +198,7 @@ window.Nogipic = (function () {
             function mouseup(e){
                 that.imgEle.style.transition = '0.6s';
                 // 记录本次放大倍数
-                that.scaleLast = that.scale;
+                that.scaleLast = that.scale?that.scale:that.scaleLast;
                 if(that.scaleLast > 3){
                     that.scaleLast = 3;
                 } else if(that.scaleLast < 1) {
@@ -238,6 +238,7 @@ window.Nogipic = (function () {
             this.rootEle.addEventListener('mousedown', mousedown);
             this.rootEle.addEventListener('touchstart', mousedown, {passive:false});
             this.rootEle.onmousewheel = function(e){
+                e.preventDefault();
                 let wheelDelta = e.detail?e.detail:e.wheelDelta;
                 if(wheelDelta>0)
                     that.scaleLast += 0.1;
@@ -250,7 +251,7 @@ window.Nogipic = (function () {
                 that.imgEle.style[TRANSFORM] = 'scale(' + that.scaleLast +')';
                 that.adjustPos();
             };
-            window.onresize = function(){that.showImg(that.idx);};
+            window.onresize = function(){if(that.show)that.showImg(that.idx);};
         },
         close:function(){
             if (this.rootEle)
