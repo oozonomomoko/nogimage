@@ -62,12 +62,12 @@ window.Nogipic = (function () {
             this.preEle.className = 'pre';
             this.nxtEle = document.createElement('div');
             this.nxtEle.className = 'nxt';
-            this.rootEle.appendChild(this.preEle);
-            this.rootEle.appendChild(span);
-            this.rootEle.appendChild(this.nxtEle);
             this.pageEle = document.createElement('div');
             this.pageEle.className = 'page';
             this.rootEle.appendChild(this.pageEle);
+            this.rootEle.appendChild(this.preEle);
+            this.rootEle.appendChild(span);
+            this.rootEle.appendChild(this.nxtEle);
             this.TRANSFORM = 'transform';
             if (typeof document.body.style.webkitTransform !== undefined) {
                 TRANSFORM = 'webkitTransform';
@@ -78,7 +78,7 @@ window.Nogipic = (function () {
             if (!document.getElementById('nogipicstyle')) {
                 let style = document.createElement('style');
                 style.setAttribute('id', 'nogipicstyle');
-                style.innerHTML='.nogipic{border: none;position:fixed;display:none;left:0;top:0;width:100%;height:100%;z-index:99999;background-color:rgba(0, 0, 0, 0.8);}.nogipic img{position: fixed;max-width: 100%;max-height: 100%;display: block;}.nogipic span {display: block;}.nogipic div {color: white;text-shadow: 0 0 5px black;text-align: center;position: fixed;height: 100%;width: 25%;top: 0;z-index: 999;border: none;}.nogipic .pre{left:0;}.nogipic .nxt{right:0;}.nogipic .page {top: 90%;width: 100%;}.nogipic .pre:before {content: "<";top: 50%;position: fixed;transform: scale(1.5);}.nogipic .nxt:before {content: ">";top: 50%;position: fixed;transform: scale(1.5);}';
+                style.innerHTML='.nogipic{border:none;position:fixed;display:none;left:0;top:0;width:100%;height:100%;z-index:99999;background-color:rgba(0,0,0,.8)}.nogipic img{position:fixed;max-width:100%;max-height:100%;display:block}.nogipic span{display:block}.nogipic div{color:#fff;text-shadow:0 0 3px #000;text-align:center;position:fixed;height:20%;width:50%;top:80%;z-index:1000;border:none}.nogipic .pre{left:0;background-color:rgba(255,255,255,.3)}.nogipic .nxt{right:0;background-color:rgba(255,255,255,.3)}.nogipic .page{top:90%;width:100%}.nogipic .pre:before{content:"<";top:50%;position:absolute;transform:scale(1.5)}.nogipic .nxt:before{content:">";top:50%;position:absolute;transform:scale(1.5)}';
                 document.body.appendChild(style);
             }
 			var that = this;
@@ -88,24 +88,14 @@ window.Nogipic = (function () {
             }
 			for (let i = 0; i < eles.length; i++) {
                 let idx = i;
-				eventEles[i].addEventListener('click', function() {
+				eventEles[i].onclick = function() {
                     that.showImg(idx);
-				});
+				};
 			}
             // 拖拽 缩放 前 后
             this.bindDrag();
 		},
         adjustPos: function(){
-            /*
-            if (this.imgEle.height<window.innerHeight)
-                this.imgEle.style.marginTop = (window.innerHeight-this.imgEle.height)/2+'px';
-            else
-                this.imgEle.style.marginTop = '';
-            if (this.imgEle.width<window.innerWidth)
-                this.imgEle.style.marginLeft = (window.innerWidth-this.imgEle.width)/2+'px';
-            else
-                this.imgEle.style.marginLeft = '';      
-*/
             let actH = this.imgEle.height*this.scaleLast;
             let actW = this.imgEle.width*this.scaleLast;
             let mt = this.getMarginTop();
@@ -114,14 +104,12 @@ window.Nogipic = (function () {
             let minT = window.innerHeight-maxT-this.imgEle.height;
             let maxL = (this.scaleLast-1)*this.imgEle.width/2;
             let minL = window.innerWidth-maxL-this.imgEle.width;
-            
             if (actH<window.innerHeight)
                 this.imgEle.style.marginTop = (window.innerHeight-this.imgEle.height)/2+'px';
             else if(mt>maxT)
                 this.imgEle.style.marginTop = maxT+'px';
             else if(mt<minT)
                 this.imgEle.style.marginTop = minT+'px';
-            
             if (actW<window.innerWidth)
                 this.imgEle.style.marginLeft = (window.innerWidth-this.imgEle.width)/2+'px';
             else if(ml>maxL)
@@ -182,7 +170,7 @@ window.Nogipic = (function () {
                 if(e.touches){
                     if(e.touches.length === 2) {
                         let currDistance = getDistance(e.touches[0].pageX, e.touches[0].pageY, e.touches[1].pageX, e.touches[1].pageY);
-                        that.scaleLast = currDistance/that.startDistance * that.scaleLast;
+                        that.scale = currDistance/that.startDistance * that.scaleLast;
                         that.imgEle.style[TRANSFORM] = 'scale(' + that.scale +')';
                         let currX = (e.touches[0].pageX + e.touches[1].pageX)/2;
                         let currY = (e.touches[0].pageY + e.touches[1].pageY)/2;
@@ -208,8 +196,9 @@ window.Nogipic = (function () {
                 return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1- y2), 2));
             }
             function mouseup(e){
-                that.imgEle.style.transition = '0.35s';
+                that.imgEle.style.transition = '0.6s';
                 // 记录本次放大倍数
+                that.scaleLast = that.scale;
                 if(that.scaleLast > 3){
                     that.scaleLast = 3;
                 } else if(that.scaleLast < 1) {
@@ -219,23 +208,10 @@ window.Nogipic = (function () {
                 
                 // 左右边界
                 that.adjustPos();
-                /**let offsetX;
-                if (that.scaleLast == 1 && that.imgEle.width<window.innerWidth){
-                    offsetX = that.imgEle.style.marginLeft = (window.innerWidth-that.imgEle.width)/2+'px';
-                }else{
-                    offsetX = (that.scaleLast-1)*window.innerWidth/2;
-                }
-                let marginLeft = getMarginLeft();
-                if (marginLeft-offsetX > 0){
-                    that.imgEle.style.marginLeft = offsetX + 'px';
-                } else if(marginLeft+offsetX < 0) {
-                    that.imgEle.style.marginLeft = -offsetX + 'px';
-                }*/
-                
                 // 弹出层单击事件 前|后|关闭
                 let rangeDistance = getDistance(that.pageX, that.pageY, that.startX, that.startY);
                 let rangeTime = e.timeStamp - that.timeStamp;
-                if (rangeTime < 200 && rangeDistance < 50){
+                if (rangeTime < 200 && rangeDistance < 30){
                     if (e.target.className == 'pre') {
                         if(that.idx==0)
                             that.showImg(that.eles.length-1);
@@ -274,6 +250,7 @@ window.Nogipic = (function () {
                 that.imgEle.style[TRANSFORM] = 'scale(' + that.scaleLast +')';
                 that.adjustPos();
             };
+            window.onresize = function(){that.showImg(that.idx);};
         },
         close:function(){
             if (this.rootEle)

@@ -41,9 +41,8 @@ a {
     padding: 4px;
     word-break: break-word;
     outline: none;
-    user-select: none;
     text-overflow:ellipsis;
-    display:-webkit-box; 
+    display:-webkit-inline-box; 
     -webkit-box-orient:vertical;
     -webkit-line-clamp:3; 
 }
@@ -116,7 +115,7 @@ a {
                 div.setAttribute('tabindex', '0');
                 div.className="dir";
                 div.onclick = function(){
-                    window.location.href += file + '/';
+                    window.location.href += encodeURI(file) + '/';
                     show();
                 }
                 root.appendChild(div);
