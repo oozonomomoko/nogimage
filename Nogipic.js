@@ -330,8 +330,10 @@ window.Nogipic = (function () {
             }
         },
         close:function(){
-            if (this.rootEle)
+            if (this.rootEle) {
                 this.rootEle.style.display='none';
+		this.imgEle.src='';
+	    }
             this.show = false;
         }
 	};
